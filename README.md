@@ -1,6 +1,6 @@
 # Project Structure
 
-The project structure is defined as following:
+The project structure is defined as the following:
 ```
 ├─api              - api exposed to clients
 ├─internal         - internal packages
@@ -9,14 +9,25 @@ The project structure is defined as following:
 │  └─service       - business logic
 └─utest            - unit tests
 ```
-# How to run this application?
+# How to run?
 
 To run this application in container, you can execute the following commands:
 
 ```
 $ docker build -t gogolook .
-$ docker run gogolook
+$ docker run -d -p 8080:8080  gogolook
 ```
+
+# How to do unit test?
+
+To perform unit test, you can execute the following commands:
+
+```
+$ cd utest
+$ go test -run TestCreateTask
+```
+
+Replace 'TestCreateTask' to whatever you want to test.
 
 # Coding Exercise
 

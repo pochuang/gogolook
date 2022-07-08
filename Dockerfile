@@ -11,4 +11,4 @@ FROM alpine
 WORKDIR /var/app
 COPY --from=build-env /src/run /var/app/run
 ENTRYPOINT /var/app/run
-EXPOSE 5000
+EXPOSE 8080
