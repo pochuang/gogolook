@@ -1,0 +1,43 @@
+{
+    "go.autocompleteUnimportedPackages": true,
+    "window.zoomLevel": 1.5,
+    "go.gocodePackageLookupMode": "go",
+    "go.gotoSymbol.includeImports": true,
+    "go.useCodeSnippetsOnFunctionSuggest": true,
+    "go.inferGopath": false,
+    "go.useCodeSnippetsOnFunctionSuggestWithoutType": true,
+    "files.autoSave": "onFocusChange",
+    "go.useLanguageServer": true,
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+        },
+        // Optional: Disable snippets, as they conflict with completion ranking.
+        "editor.snippetSuggestions": "none",
+    },
+    "[go.mod]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+        },
+    },
+    "gopls": {
+        "buildFlags": ["-tags=wireinject"],
+        "experimentalWorkspaceModule": true
+      },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.alwaysShowStatus": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "go"
+    ],
+    "vetur.validation.template": false,
+    "git.ignoreLimitWarning": true
+}
