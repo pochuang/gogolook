@@ -7,7 +7,8 @@ type Task struct {
 	Status int    `json:"status"`
 }
 
-func (t Task) IsEqual(t2 Task) bool {
+// Verify is used to verify if two tasks have same data.
+func (t Task) CheckValue(t2 Task) bool {
 	if t.Name == t2.Name && t.Status == t2.Status {
 		return true
 	}

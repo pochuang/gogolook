@@ -68,7 +68,7 @@ func TestCreateTask(t *testing.T) {
 	}()
 	// We will run this test parallel
 	t.Parallel()
-	loop := 1000
+	loop := 100
 	for i := 0; i < loop; i++ {
 		t.Run("Loop"+strconv.Itoa(i), func(t1 *testing.T) {
 			for _, task := range tasks {
@@ -81,7 +81,7 @@ func TestCreateTask(t *testing.T) {
 				json.NewDecoder(w.Body).Decode(&response)
 				result := response.Result.(map[string]interface{})
 				// 3. Compare if they are equal
-				if created, err := convertMapToTask(result); err != nil || !created.IsEqual(task) {
+				if created, err := convertMapToTask(result); err != nil || !created.CheckValue(task) {
 					t.Error("failed to create")
 				}
 			}
@@ -114,7 +114,7 @@ func TestDeleteTask(t *testing.T) {
 		if task, err := convertMapToTask(data1); err != nil {
 			t.Error("data format error")
 		} else {
-			if task.IsEqual(tasks[0]) {
+			if task.CheckValue(tasks[0]) {
 				t.Error("data not deleted")
 			}
 		}
