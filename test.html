@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Stun/Turn Servers</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+    <h1>Test Ice Servers</h1>
+
+    <hr />
+	<H2>Config</H2>
+    <pre id='ice' style='overflow: auto'></pre>    
+    <p id='ip'></p>
+	<H2>Result</H2>
+    <p id='stun'>? The STUN server is NOT reachable!</p>
+    <p id='turn'>? The TURN server is NOT reachable!</p>
+	<H2>Process</H2>
+    <p id='err'></p>
+
+    <hr />
+
+    <script>
+		/*
+		function checkTurnOrStun(turnConfig, timeout){ 
+		  return new Promise(function(resolve, reject){
+
+			setTimeout(function(){
+				if(promiseResolved){
+					if (promiseResolved == 'STUN') resolve('STUN');
+					return;
+				}
+				resolve(false);
+				promiseResolved = true;
+			}, timeout || 5000);
+
+			var promiseResolved = false
+			  , myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection   //compatibility for firefox and chrome
+			  , pc = new myPeerConnection({iceServers:[turnConfig]})
+			  , noop = function(){};
+			pc.createDataChannel("");    //create a bogus data channel
+			pc.createOffer(function(sdp){
+			  if(sdp.sdp.indexOf('typ relay') > -1){ // sometimes sdp contains the ice candidates...
+				promiseResolved = 'TURN'; 
+				resolve(true);
+			  }
+			  pc.setLocalDescription(sdp, noop, noop);
+			}, noop);    // create offer and set local description
+			pc.onicecandidate = function(ice){  //listen for candidate events
+			  if( !ice || !ice.candidate || !ice.candidate.candidate)  return;
+			  if (ice.candidate.candidate.indexOf('typ relay')!=-1) { promiseResolved = 'TURN'; resolve('TURN'); }
+			  else if (!promiseResolved && (ice.candidate.candidate.indexOf('typ prflx')!=-1 || ice.candidate.candidate.indexOf('typ srflx')!=-1)){
+				  promiseResolved = 'STUN';
+				if (turnConfig.url.indexOf('turn:')!==0) resolve('STUN');
+			  }
+			  else return;
+			};
+		  });   
+		}
+
+		checkTurnOrStun({
+					url: 'stun:219.87.186.46:3478',
+					credential: '',
+					username: ''
+		}).then(function(result){
+			console.log(
+			result ? 'YES, Server active as '+result : 'NO, server not active');
+		}).catch(console.error.bind(console));
+		*/
+        const Ice = document.getElementById('ice');
+        const IP = document.getElementById('ip');
+        const Stun = document.getElementById('stun');
+        const Turn = document.getElementById('turn');
+        const Err = document.getElementById('err');
+        var iceServers = [
+			{urls: ['stun:219.87.186.48:3478','stun:219.87.186.48:3578','stun:219.87.186.48:3678','stun:219.87.186.48:3778']}
+		  ];
+/*
+        const iceServers = [
+            // Test some STUN server
+			{
+                urls: 'stun:ice.jarstar.com.tw:3478?transport=udp',
+            },
+            {
+                urls: 'stun:219.87.186.48:3478',
+            },
+			{
+                urls: 'stun:122.146.110.48:3478',
+            },
+			{
+                urls: 'stun:219.87.186.46:3478',
+            },
+			{
+                urls: 'stun:122.146.110.46:3478',
+            } 
+        ];
+*/
+        // Print iceServers config
+        Ice.innerHTML = JSON.stringify(iceServers, null, 4);
+
+        // Test the connections
+        const pc = new RTCPeerConnection({
+		  iceServers: iceServers
+		});
+
+		function getNow(){
+			var date = new Date();
+			var dateStr =
+			  ("00" + date.getHours()).slice(-2) + ":" +
+			  ("00" + date.getMinutes()).slice(-2) + ":" +
+			  ("00" + date.getSeconds()).slice(-2);			
+			return "<font color=blue>"+dateStr+"</font>";
+		}
+		
+        pc.onicecandidate = (e) => {
+            if (!e.candidate) return;
+
+            console.log(e.candidate.candidate);
+
+            // If a srflx candidate was found, notify that the STUN server works!
+            if (e.candidate.type == 'srflx' || e.candidate.candidate.includes('srflx')) {
+                let ip = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+                let address = e.candidate.address 
+                    ? e.candidate.address 
+                    : e.candidate.candidate.match(ip);
+                IP.innerHTML = '? Your Public IP Address is ' + address;
+                Stun.innerHTML = '? The STUN server is reachable!';
+            }
+
+            // If a relay candidate was found, notify that the TURN server works!
+            if (e.candidate.type == 'relay' || e.candidate.candidate.includes('relay')) {
+                Turn.innerHTML = '? The TURN server is reachable!';
+            }
+        };
+
+        // handle error
+        pc.onicecandidateerror = (e) => {
+            console.error(e);
+            Err.innerHTML += getNow() + ' [onicecandidateerror] - <B>Connecting</B> <font color=red>' + e.url + '</font> => <font color=red>' + e.errorText + "</font><br/>";			
+			Err.innerHTML += "host candidate=" + e.hostCandidate + "<br/>";	
+			Err.innerHTML += "local description=" + JSON.stringify(pc.localDescription)+ "<br/>";	
+        };
+		pc.onnegotiationneeded = (e) => {
+            console.error(e);			
+			Err.innerHTML += getNow() + ' [onnegotiationneeded] - <B>Regotiating ...</B><br/>';
+        };
+		pc.iceconnectionstatechange  = (e) => {
+            console.error(e);			
+			Err.innerHTML += getNow() + '[iceconnectionstatechange] - <B>State changed ...</B><br/>';
+        };
+		
+        pc.createDataChannel('test');
+        pc.createOffer().then(offer => pc.setLocalDescription(offer));
+    </script>
+</body>
+
+</html>
