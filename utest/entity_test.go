@@ -14,7 +14,7 @@ func TestCreate(t *testing.T) {
 	db.Create(data...)
 	tasks := db.List()
 	for i := range tasks {
-		if !tasks[i].IsEqual(data[i]) {
+		if !tasks[i].CheckValue(data[i]) {
 			t.Error("data not created")
 		}
 	}

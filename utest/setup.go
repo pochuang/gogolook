@@ -3,7 +3,13 @@ package utest
 import (
 	"internal/entity"
 	"internal/model"
+
+	"github.com/gin-gonic/gin"
 )
+
+func init() {
+	gin.DisableConsoleColor()
+}
 
 func setupTaskData() (data []model.Task) {
 	task1 := model.Task{Name: "Buy breakfast"}
